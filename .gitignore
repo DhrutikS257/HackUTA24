@@ -1,3 +1,5 @@
 venv
-script.sh
 .module_cache
+data
+test
+__pycache__

@@ -65,5 +65,7 @@ check_module mediapipe
 
 dir="ml-service"
 file="app.py"
+# dir="test"
+# file="EmotionDetector.py"
 
 (cd "$(pwd)/$dir" && streamlit run "$file")
