@@ -62,6 +62,7 @@ check_module streamlit
 check_module opencv-python
 check_module watchdog
 check_module mediapipe
+check_module pyserial
 
 dir="ml-service"
 file="app.py"

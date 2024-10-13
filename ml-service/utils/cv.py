@@ -1,6 +1,8 @@
 from collections import deque
 import cv2, mediapipe as mp, streamlit as st, os, tensorflow as tf
 import numpy as np
+import time
+import serial
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import image as img_keras
 
@@ -26,6 +28,10 @@ def setup_cv(cam, image_placeholder):
 
 
 def setup_mp(cam, mp_drawing, mp_face_mesh, drawing_spec, image_placeholder):
+    # Set up the serial connection (adjust the port and baud rate as necessary)
+    arduino = serial.Serial(port='/dev/cu.usbmodem11301', baudrate=9600, timeout=1)
+
+    time.sleep(2)  # Wait for the Arduino to reset
 
     counter = 0
     
@@ -97,11 +103,18 @@ def setup_mp(cam, mp_drawing, mp_face_mesh, drawing_spec, image_placeholder):
                     img_pixels = np.expand_dims(img_pixels, axis=0)
                     img_pixels /= 255
 
-                    emotion = model.predict(img_pixels)[0]
+                    emotion = model.predict(img_pixels, verbose=0)[0]
                     Q.append(emotion)
                     results = np.array(Q).mean(axis=0)
                     i = np.argmax(results)
                     label = emotions[i]
+                    if(label == "Sad"):
+                        print("sending", f"{label}\n".encode())
+                        arduino.write( f"{label}\n".encode() )
+                        arduino.flush()
+
+                    # thread = threading.Thread(target=send_data, args=label) # Send info to the arduino
+                    # thread.start()
 
                     cv2.putText(img, label, (cx_min, cy_min), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     cv2.rectangle(img, (cx_min, cy_min), (cx_max, cy_max), (0, 255, 0), 2)
@@ -116,8 +129,6 @@ def setup_mp(cam, mp_drawing, mp_face_mesh, drawing_spec, image_placeholder):
 
 
                 #     cv2.imwrite(filename=filename, img=detected_face)
-
-                #     counter += 1
             
                 image_placeholder.image(img, channels="BGR")
 
