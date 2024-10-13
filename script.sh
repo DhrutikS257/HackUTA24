@@ -61,8 +61,9 @@ check_module keras
 check_module streamlit
 check_module opencv-python
 check_module watchdog
+check_module mediapipe
 
-dir="ml-service/app"
+dir="ml-service"
 file="app.py"
 
 (cd "$(pwd)/$dir" && streamlit run "$file")
